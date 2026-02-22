@@ -1,0 +1,5 @@
+{
+  "name": "Question Explorer",
+  "description": "A high-performance research tool for content creators to discover trending questions across Google, Reddit, and Quora using real search signals and AI-driven content ideation.",
+  "requestFramePermissions": []
+}
