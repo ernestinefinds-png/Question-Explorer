@@ -1,23 +1,31 @@
-import path from 'path';
-import { defineConfig, loadEnv } from 'vite';
-import react from '@vitejs/plugin-react';
+import { OpenRouter } from "@openrouter/sdk";
 
-export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
-    return {
-      server: {
-        port: 3000,
-        host: '0.0.0.0',
-      },
-      plugins: [react()],
-      define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
-      },
-      resolve: {
-        alias: {
-          '@': path.resolve(__dirname, '.'),
-        }
-      }
-    };
+const openrouter = new OpenRouter({
+  apiKey: "<OPENROUTER_API_KEY>"
 });
+
+// Stream the response to get reasoning tokens in usage
+const stream = await openrouter.chat.send({
+  model: "stepfun/step-3.5-flash:free",
+  messages: [
+    {
+      role: "user",
+      content: "How many r's are in the word 'strawberry'?"
+    }
+  ],
+  stream: true
+});
+
+let response = "";
+for await (const chunk of stream) {
+  const content = chunk.choices[0]?.delta?.content;
+  if (content) {
+    response += content;
+    process.stdout.write(content);
+  }
+
+  // Usage information comes in the final chunk
+  if (chunk.usage) {
+    console.log("\nReasoning tokens:", chunk.usage.reasoningTokens);
+  }
+}
