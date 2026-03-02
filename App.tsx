@@ -49,7 +49,11 @@ const App: React.FC = () => {
       setResult(data);
     } catch (err: any) {
       console.error("Search Error:", err);
-      setError(err.message || 'The search engine timed out. Please try a more specific niche.');
+      let userMessage = 'The search engine timed out. Please try a more specific niche.';
+      if (err.message?.includes('API_KEY_INVALID') || err.message?.includes('API key not valid')) {
+        userMessage = 'Configuration Error: The Gemini API Key is missing or invalid. Please check your environment variables.';
+      }
+      setError(userMessage);
     } finally {
       setIsLoading(false);
     }

@@ -6,7 +6,11 @@ export class GeminiService {
   private ai: GoogleGenAI;
 
   constructor() {
-    this.ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+    const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY || import.meta.env.VITE_GEMINI_API_KEY;
+    if (!apiKey) {
+      console.error("Gemini API Key is missing. Please set GEMINI_API_KEY in your environment variables.");
+    }
+    this.ai = new GoogleGenAI({ apiKey: apiKey || '' });
   }
 
   async researchNiche(niche: string, count: number): Promise<ResearchResult> {
